@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/syntax_checker.iml" filepath="$PROJECT_DIR$/syntax_checker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/syntax_checker.main.iml" filepath="$PROJECT_DIR$/.idea/modules/syntax_checker.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/syntax_checker.test.iml" filepath="$PROJECT_DIR$/.idea/modules/syntax_checker.test.iml" />
     </modules>
   </component>
 </project>
