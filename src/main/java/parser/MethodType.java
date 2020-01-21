@@ -1,3 +1,5 @@
+package parser;
+
 import syntaxtree.*;
 
 public class MethodType {

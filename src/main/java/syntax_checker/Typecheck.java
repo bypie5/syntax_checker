@@ -1,5 +1,8 @@
-import syntaxtree.Goal;
-import visitor.DepthFirstVisitor;
+package syntax_checker;
+
+import syntaxtree.*;
+import parser.*;
+import visitor.*;
 
 public class Typecheck {
   public enum MiniJavaType { M_INT_ARRAY, M_BOOLEAN, M_INT }
