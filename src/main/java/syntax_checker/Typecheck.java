@@ -17,7 +17,11 @@ public class Typecheck {
     try {
       Goal root = MiniJavaParser.Goal();
       SymbolTableConstructor visitor = new SymbolTableConstructor();
+
+      // Give the visitor data it needs
       visitor.root = root;
+      visitor.symbolTable = symbolTable;
+
       root.accept(visitor);
     } catch (Exception e) {
       System.out.println("ERROR: " + e.getMessage());

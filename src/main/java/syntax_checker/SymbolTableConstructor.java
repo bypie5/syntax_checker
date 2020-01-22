@@ -8,6 +8,7 @@ import java.util.*;
 public class SymbolTableConstructor implements Visitor {
 
   public Goal root;
+  public SymbolTable symbolTable;
 
   //
   // Helper functions as defined in the MiniJava Type System
@@ -264,9 +265,6 @@ public class SymbolTableConstructor implements Visitor {
     n.f3.accept(this);
     n.f4.accept(this);
     n.f5.accept(this);
-
-    System.out.println(methodtype("Bayes", "ComputeFac"));
-    System.out.println(noOverloading("Bayes", "Fac", "ComputeFac"));
   }
 
   /**
