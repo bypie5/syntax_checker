@@ -9,13 +9,14 @@ public class Typecheck {
   public static void main(String args[]) {
     // Take file in from stdin (ie [program] < [input.file])
 
-    System.out.println("Program type checked successfully");
+    /*System.out.println("Program type checked successfully");
 
     try {
-      //System.out.println(System.in.read());
+      System.out.println(System.in.read());
     } catch (Exception e) {
-     // System.out.println("ERROR: " + e.getMessage());
-    }
+     System.out.println("ERROR: " + e.getMessage());
+    }*/
+
     /*new MiniJavaParser(System.in);
 
 
