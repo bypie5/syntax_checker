@@ -4,5 +4,11 @@ public abstract class Binder {
 
     SymbolTable myItems;
 
-    public abstract boolean addSymbol(Symbol key, Binder b);
+    public boolean addSymbol(Symbol key, Binder b) {
+        if (myItems.get(key) == null) {
+            myItems.put(key, b);
+            return true;
+        }
+        return false;
+    }
 }

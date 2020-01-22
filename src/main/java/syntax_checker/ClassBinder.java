@@ -8,8 +8,4 @@ public class ClassBinder extends Binder {
     public ClassBinder() {
 
     }
-
-    public boolean addSymbol(Symbol key, Binder b) {
-        return false;
-    }
 }

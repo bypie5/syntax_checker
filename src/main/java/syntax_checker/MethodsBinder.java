@@ -9,8 +9,4 @@ public class MethodsBinder extends Binder {
     public MethodsBinder() {
 
     }
-
-    public boolean addSymbol(Symbol key, Binder b) {
-        return false;
-    }
 }

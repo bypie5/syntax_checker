@@ -61,4 +61,8 @@ public class SymbolTable {
     public Object get(Symbol key) {
         return hashT.lookup(key);
     }
+
+    public boolean alreadyExists(Symbol key) {
+        return !(get(key) == null);
+    }
 }

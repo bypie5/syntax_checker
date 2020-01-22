@@ -5,7 +5,7 @@ import visitor.Visitor;
 import syntaxtree.*;
 import java.util.*;
 
-public class TypecheckVisitor implements Visitor {
+public class SymbolTableConstructor implements Visitor {
 
   public Goal root;
 
