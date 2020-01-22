@@ -1,7 +1,5 @@
 package syntax_checker;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
