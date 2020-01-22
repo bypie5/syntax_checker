@@ -2,10 +2,10 @@ package syntax_checker;
 
 class Bucket {
     Symbol key;
-    Object binding;
+    Binder binding;
     Bucket next;
 
-    Bucket(Symbol k, Object b, Bucket n) {
+    Bucket(Symbol k, Binder b, Bucket n) {
         key = k;
         binding = b;
         next = n;
@@ -24,7 +24,7 @@ class HashT {
         return h;
     }
 
-    void insert(Symbol s, Object b) {
+    void insert(Symbol s, Binder b) {
         int index=hash(s)%SIZE;
         table[index] = new Bucket(s, b, table[index]);
     }
@@ -54,7 +54,7 @@ public class SymbolTable {
         hashT = new HashT();
     }
 
-    public void put(Symbol key, Object value) {
+    public void put(Symbol key, Binder value) {
         hashT.insert(key, value);
     }
 
