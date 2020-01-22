@@ -1,10 +1,11 @@
 package syntax_checker;
 
 public class ParameterBinder extends Binder {
-
-    SymbolTable params;
-
     public ParameterBinder() {
 
+    }
+
+    public boolean addSymbol(Symbol key, Binder b) {
+        return false;
     }
 }

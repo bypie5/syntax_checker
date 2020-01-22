@@ -1,8 +1,12 @@
 package syntax_checker;
 
 public class LocalsBinder extends Binder {
-    SymbolTable locals;
+
     public LocalsBinder() {
 
+    }
+
+    public boolean addSymbol(Symbol key, Binder b) {
+        return false;
     }
 }
