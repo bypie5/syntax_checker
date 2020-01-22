@@ -22,9 +22,12 @@ public class Typecheck {
       visitor.root = root;
       visitor.symbolTable = symbolTable;
 
+      // Construct symbol table
       root.accept(visitor);
     } catch (Exception e) {
       System.out.println("ERROR: " + e.getMessage());
     }
+
+    symbolTable.print();
   }
 } 

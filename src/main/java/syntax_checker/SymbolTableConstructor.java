@@ -265,6 +265,8 @@ public class SymbolTableConstructor implements Visitor {
     n.f3.accept(this);
     n.f4.accept(this);
     n.f5.accept(this);
+
+    symbolTable.put(Symbol.symbol(classname(n)), null);
   }
 
   /**
@@ -541,7 +543,6 @@ public class SymbolTableConstructor implements Visitor {
   public void visit(PlusExpression n) {
     n.f0.accept(this);
     n.f1.accept(this);
-    System.out.println("+");
     n.f2.accept(this);
   }
 

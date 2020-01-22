@@ -26,14 +26,15 @@ class HashT {
 
     void insert(Symbol s, Binder b) {
         int index=hash(s)%SIZE;
+        index = (index < 0) ? index*-1 : index;
         table[index] = new Bucket(s, b, table[index]);
     }
 
-    Object lookup(Symbol s) {
+    Binder lookup(Symbol s) {
         int index=hash(s)%SIZE;
-        for (Object b = table[index]; b != null; b = ((Bucket) b).next) {
-            if (s.eq(((Bucket) b).key)) {
-                return ((Bucket) b).binding;
+        for (Bucket b = table[index]; b != null; b = b.next) {
+            if (s.eq(b.key)) {
+                return b.binding;
             }
         }
 
@@ -43,6 +44,15 @@ class HashT {
     void pop(Symbol s) {
         int index = hash(s)%SIZE;
         table[index] = table[index].next;
+    }
+
+    public void print() {
+        for (int i = 0; i < table.length; i++) {
+            Bucket curr = table[i];
+            if (curr != null) {
+                System.out.println(curr.key.toString());
+            }
+        }
     }
 }
 
@@ -58,11 +68,15 @@ public class SymbolTable {
         hashT.insert(key, value);
     }
 
-    public Object get(Symbol key) {
+    public Binder get(Symbol key) {
         return hashT.lookup(key);
     }
 
     public boolean alreadyExists(Symbol key) {
         return !(get(key) == null);
+    }
+
+    public void print() {
+        hashT.print();
     }
 }
