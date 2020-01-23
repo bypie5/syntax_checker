@@ -11,6 +11,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public Goal root;
     public SymbolTable symbolTable;
 
+    ClassBinder currClass = null;
+    MethodsBinder currMethod = null;
+
     public boolean foundError = false;
 
     public void RegTypeError() {
@@ -297,6 +300,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(ClassDeclaration n) {
         R _ret=null;
+
+        currClass = (ClassBinder) symbolTable.get(Symbol.symbol(classname(n)));
+
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
@@ -318,6 +324,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(ClassExtendsDeclaration n) {
         R _ret=null;
+
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
@@ -359,6 +366,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(MethodDeclaration n) {
         R _ret=null;
+
+        currMethod = (MethodsBinder) currClass.methods.get(Symbol.symbol(methodname(n)));
+
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
@@ -490,6 +500,14 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
+
+        if (currMethod.myItems.get(Symbol.symbol(n.f0.f0.toString())) == null
+            &&
+            currClass.myItems.get(Symbol.symbol(n.f0.f0.toString())) == null
+        ) {
+            RegTypeError();
+        }
+
         return _ret;
     }
 
