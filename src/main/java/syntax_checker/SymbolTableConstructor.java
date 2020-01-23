@@ -13,9 +13,10 @@ public class SymbolTableConstructor implements Visitor {
   ClassBinder currClass = null;
   MethodsBinder currMethod = null;
 
+  public boolean foundError = false;
+
   public void RegTypeError() {
-    System.out.println("Type error");
-    //System.exit(1);
+    foundError = true;
   }
 
   //

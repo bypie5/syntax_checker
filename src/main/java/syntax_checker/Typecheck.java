@@ -7,21 +7,25 @@ public class Typecheck {
   public enum MiniJavaType { M_INT_ARRAY, M_BOOLEAN, M_INT }
   public static SymbolTable symbolTable;
 
+  // Take file in from stdin (ie [program] < [input.file])
   public static MiniJavaParser parser = new MiniJavaParser(System.in);
 
   public static void typeCheck() {
     // Set up data
     symbolTable = new SymbolTable();
+    SymbolTableConstructor firstVisitor = new SymbolTableConstructor();
+    CheckVisitor<String> secondVisitor = new CheckVisitor<>();
 
-    // Take file in from stdin (ie [program] < [input.file])
+    /*
+      Use this so automatic testing works
+      Probably will work for the final run too
+    */
     parser.ReInit(System.in);
+
     try {
       Goal root = parser.Goal();
 
-      // First pass
-      SymbolTableConstructor firstVisitor = new SymbolTableConstructor();
-
-      // Give the visitor data it needs
+      // First pass; Give the visitor data it needs
       firstVisitor.root = root;
       firstVisitor.symbolTable = symbolTable;
 
@@ -29,21 +33,23 @@ public class Typecheck {
       root.accept(firstVisitor);
 
       // Second pass
-      //CheckVisitor<String> secondVisitor = new CheckVisitor<>();
+      secondVisitor.root = root;
+      secondVisitor.symbolTable = symbolTable;
 
-      //secondVisitor.root = root;
-      //secondVisitor.symbolTable = symbolTable;
-
-      //root.accept(secondVisitor);
-
+      // Type check based off items stored in the symbol table
+      root.accept(secondVisitor);
     } catch (Exception e) {
       System.out.println("ERROR: " + e);
-      //System.exit(1);
     }
 
     //symbolTable.print();
     // If the program makes it this far, it is correct
-    System.out.println("Program type checked successfully");
+    if (!firstVisitor.foundError && !secondVisitor.foundError) {
+      System.out.println("Program type checked successfully");
+    }
+    else {
+      System.out.println("Type error");
+    }
   }
 
   public static void main(String args[]) {

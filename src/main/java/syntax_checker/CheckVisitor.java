@@ -11,9 +11,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public Goal root;
     public SymbolTable symbolTable;
 
+    public boolean foundError = false;
+
     public void RegTypeError() {
-        System.out.println("Type error");
-        //System.exit(1);
+        foundError = true;
     }
 
     //
