@@ -1,8 +1,11 @@
 package syntax_checker;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import java.io.*;
 import static org.junit.Assert.*;
+
 
 
 /*
@@ -12,11 +15,12 @@ java Typecheck < P.java
 
 should print either Program type checked successfully or Type error.
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TypecheckTest {
     void passFileToMain(String name) throws IOException {
         String[] args = null;
         final InputStream original = System.in;
-        final FileInputStream fips =  new FileInputStream(new File("src/test/resources/input_files/"+name));
+        final FileInputStream fips = new FileInputStream(new File("src/test/resources/input_files/"+name));
         System.setIn(fips);
         Typecheck.main(args);
         System.setIn(original);
@@ -32,6 +36,7 @@ public class TypecheckTest {
 
         // Clean up
         System.setOut(originalOut);
+        myOut.close();
 
         return myOut.toString();
     }

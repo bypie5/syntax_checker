@@ -5,28 +5,32 @@ import parser.*;
 
 public class Typecheck {
   public enum MiniJavaType { M_INT_ARRAY, M_BOOLEAN, M_INT }
+  public static SymbolTable symbolTable;
 
   public static void main(String args[]) {
+    // Set up data
+    symbolTable = new SymbolTable();
+
     // Take file in from stdin (ie [program] < [input.file])
-
-    System.out.println("Program type checked successfully");
-
-    try {
-      //System.out.println(System.in.read());
-    } catch (Exception e) {
-     // System.out.println("ERROR: " + e.getMessage());
-    }
-    /*new MiniJavaParser(System.in);
-
-
+    new MiniJavaParser(System.in);
 
     try {
       Goal root = MiniJavaParser.Goal();
-      TypecheckVisitor visitor = new TypecheckVisitor();
+      SymbolTableConstructor visitor = new SymbolTableConstructor();
+
+      // Give the visitor data it needs
       visitor.root = root;
+      visitor.symbolTable = symbolTable;
+
+      // Construct symbol table
       root.accept(visitor);
     } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
-    }*/
+      System.out.println("ERROR: " + e);
+      //System.exit(1);
+    }
+
+    //symbolTable.print();
+    // If the program makes it this far, it is correct
+    System.out.println("Program type checked successfully");
   }
 } 
