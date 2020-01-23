@@ -4,6 +4,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import java.io.*;
+import java.util.Scanner;
+
 import static org.junit.Assert.*;
 
 
@@ -20,10 +22,14 @@ public class TypecheckTest {
     void passFileToMain(String name) throws IOException {
         String[] args = null;
         final InputStream original = System.in;
-        final FileInputStream fips = new FileInputStream(new File("src/test/resources/input_files/"+name));
-        System.setIn(fips);
-        Typecheck.main(args);
-        System.setIn(original);
+        try {
+            final FileInputStream fips = new FileInputStream(new File("src/test/resources/input_files/" + name));
+            System.setIn(fips);
+            Typecheck.typeCheck();
+            fips.close();
+        } finally {
+            System.setIn(original);
+        }
     }
 
     String testFile(String name) throws IOException {

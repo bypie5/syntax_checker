@@ -7,15 +7,16 @@ public class Typecheck {
   public enum MiniJavaType { M_INT_ARRAY, M_BOOLEAN, M_INT }
   public static SymbolTable symbolTable;
 
-  public static void main(String args[]) {
+  public static MiniJavaParser parser = new MiniJavaParser(System.in);
+
+  public static void typeCheck() {
     // Set up data
     symbolTable = new SymbolTable();
 
     // Take file in from stdin (ie [program] < [input.file])
-    new MiniJavaParser(System.in);
-
+    parser.ReInit(System.in);
     try {
-      Goal root = MiniJavaParser.Goal();
+      Goal root = parser.Goal();
 
       // First pass
       SymbolTableConstructor firstVisitor = new SymbolTableConstructor();
@@ -28,12 +29,12 @@ public class Typecheck {
       root.accept(firstVisitor);
 
       // Second pass
-      CheckVisitor<String> secondVisitor = new CheckVisitor<>();
+      //CheckVisitor<String> secondVisitor = new CheckVisitor<>();
 
-      secondVisitor.root = root;
-      secondVisitor.symbolTable = symbolTable;
+      //secondVisitor.root = root;
+      //secondVisitor.symbolTable = symbolTable;
 
-      root.accept(secondVisitor);
+      //root.accept(secondVisitor);
 
     } catch (Exception e) {
       System.out.println("ERROR: " + e);
@@ -43,5 +44,9 @@ public class Typecheck {
     //symbolTable.print();
     // If the program makes it this far, it is correct
     System.out.println("Program type checked successfully");
+  }
+
+  public static void main(String args[]) {
+    typeCheck();
   }
 } 
