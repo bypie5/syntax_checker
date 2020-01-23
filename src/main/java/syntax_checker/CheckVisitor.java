@@ -8,6 +8,10 @@ import java.util.Enumeration;
 
 public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
+    String IntTypeStr = "INT_TYPE";
+    String BoolTypeStr = "BOOL_TYPE";
+    String ArrayTypeStr = "ARRAY_TYPE";
+
     public Goal root;
     public SymbolTable symbolTable;
 
@@ -498,15 +502,36 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R _ret=null;
         n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        String expType = (String) n.f2.accept(this);
         n.f3.accept(this);
 
-        if (currMethod.myItems.get(Symbol.symbol(n.f0.f0.toString())) == null
-            &&
-            currClass.myItems.get(Symbol.symbol(n.f0.f0.toString())) == null
-        ) {
+        // Does f0 identifier exist in the symbol table?
+        Binder tempMethodId = null;
+        if (currMethod != null)
+            tempMethodId = currMethod.myItems.get(Symbol.symbol(n.f0.f0.toString()));
+        Binder tempClassId = currClass.myItems.get(Symbol.symbol(n.f0.f0.toString()));
+        // TODO: Check extended classes for the variable too?
+        if (tempMethodId == null && tempClassId == null) {
             RegTypeError();
         }
+
+        // Do both sides of the assignment type check
+        Binder temp = (tempMethodId != null) ? tempMethodId : tempClassId;
+        String idType = "";
+        if (temp instanceof IntBinder) {
+            idType = IntTypeStr;
+        }
+
+        if (temp instanceof BoolBinder) {
+            idType = BoolTypeStr;
+        }
+
+        if (temp instanceof ArrayBinder) {
+            idType = ArrayTypeStr;
+        }
+
+        if (expType == null || !expType.equals(idType))
+            RegTypeError();
 
         return _ret;
     }
@@ -600,7 +625,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(Expression n) {
         R _ret=null;
-        n.f0.accept(this);
+        _ret = n.f0.accept(this);
         return _ret;
     }
 
@@ -663,9 +688,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(TimesExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        R rhs = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R lhs = n.f2.accept(this);
+        System.out.println(rhs + "*" + lhs);
         return _ret;
     }
 
@@ -707,12 +733,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(MessageSend n) {
         R _ret=null;
-        n.f0.accept(this);
+        String currClass = (String) n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
         n.f5.accept(this);
+
+        System.out.println(currClass + ".()");
+
         return _ret;
     }
 
@@ -751,7 +780,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(PrimaryExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        _ret = n.f0.accept(this);
         return _ret;
     }
 
@@ -761,7 +790,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(IntegerLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return _ret;
+        return (R)IntTypeStr;
     }
 
     /**
@@ -770,7 +799,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(TrueLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return _ret;
+        return (R)BoolTypeStr;
     }
 
     /**
@@ -779,7 +808,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(FalseLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return _ret;
+        return (R)BoolTypeStr;
     }
 
     /**
@@ -788,6 +817,31 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(Identifier n) {
         R _ret=null;
         n.f0.accept(this);
+
+        Binder idBinder = null;
+
+        if (currClass != null) {
+            Binder temp = currClass.myItems.get(Symbol.symbol(n.f0.toString()));
+            if (temp != null) idBinder = temp;
+        }
+
+        if (currMethod != null) {
+            Binder temp = currMethod.myItems.get(Symbol.symbol(n.f0.toString()));
+            if (temp != null) idBinder = temp;
+        }
+
+        if (idBinder instanceof IntBinder) {
+            _ret = (R)IntTypeStr;
+        }
+
+        if (idBinder instanceof BoolBinder) {
+            _ret = (R)BoolTypeStr;
+        }
+
+        if (idBinder instanceof ArrayBinder) {
+            _ret = (R)ArrayTypeStr;
+        }
+
         return _ret;
     }
 
@@ -797,6 +851,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(ThisExpression n) {
         R _ret=null;
         n.f0.accept(this);
+        _ret = (R)currClass.classname;
         return _ret;
     }
 
@@ -829,6 +884,18 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
+
+        /*
+            Creating a new class instance
+            Does it exist in the symbol table
+        */
+        ClassBinder newClass = (ClassBinder) symbolTable.get(Symbol.symbol(n.f1.f0.toString()));
+        if (newClass == null) {
+            RegTypeError();
+        }
+
+        _ret = (R)newClass.classname;
+
         return _ret;
     }
 

@@ -40,6 +40,7 @@ public class Typecheck {
       root.accept(secondVisitor);
     } catch (Exception e) {
       System.out.println("ERROR: " + e);
+      e.printStackTrace();
     }
 
     //symbolTable.print();

@@ -235,7 +235,7 @@ public class SymbolTableConstructor implements Visitor {
   * f17 -> "}"
   */
   public void visit(MainClass n) {
-    ClassBinder temp = new ClassBinder();
+    ClassBinder temp = new ClassBinder(classname(n));
     currClass = temp;
 
     n.f0.accept(this);
@@ -278,7 +278,7 @@ public class SymbolTableConstructor implements Visitor {
   * f5 -> "}"
   */
   public void visit(ClassDeclaration n) {
-    ClassBinder temp = new ClassBinder();
+    ClassBinder temp = new ClassBinder(classname(n));
     currClass = temp;
 
     n.f0.accept(this);
@@ -423,7 +423,7 @@ public class SymbolTableConstructor implements Visitor {
       if (n.f0.f0.choice instanceof ArrayType)
         currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
       if (n.f0.f0.choice instanceof Identifier)
-        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(n.f1.f0.toString()));
     } else {
       if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
@@ -435,7 +435,7 @@ public class SymbolTableConstructor implements Visitor {
       if (n.f0.f0.choice instanceof ArrayType)
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
       if (n.f0.f0.choice instanceof Identifier)
-        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(n.f1.f0.toString()));
     }
   }
 
