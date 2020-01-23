@@ -1,5 +1,6 @@
 package syntax_checker;
 
+import parser.MethodType;
 import syntaxtree.*;
 import visitor.GJNoArguVisitor;
 
@@ -9,6 +10,165 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
     public Goal root;
     public SymbolTable symbolTable;
+
+    public void RegTypeError() {
+        System.out.println("Type error");
+        //System.exit(1);
+    }
+
+    //
+    // Helper functions as defined in the MiniJava Type System
+    //
+    public String idName(Identifier id) {
+        return id.f0.toString();
+    }
+
+    public String classname(MainClass mc) {
+        return mc.f1.f0.toString();
+    }
+
+    public String classname(ClassDeclaration c) {
+        return c.f1.f0.toString();
+    }
+
+    public String classname(ClassExtendsDeclaration c) {
+        return c.f1.f0.toString();
+    }
+
+    public String methodname(MethodDeclaration m) {
+        return m.f2.f0.toString();
+    }
+
+    public boolean distinct(NodeOptional no) {
+        // Has no parameters
+        if (!no.present()) {
+            return true;
+        }
+
+        FormalParameterList pl = (FormalParameterList)no.node;
+        // If f1 is empty -> Always distinct (i.e. one parameter)
+        int n = pl.f1.size();
+        if (n == 0) {
+            return true;
+        } else {
+            FormalParameter param_i;
+            FormalParameter param_j;
+            for (int i = -1; i < n; i++) {
+                for (int j = -1; j < n; j++) {
+                    if (i == -1) {
+                        param_i = pl.f0;
+                    } else {
+                        param_i = ((FormalParameterRest)pl.f1.elementAt(i)).f1;
+                    }
+                    if (j == -1) {
+                        param_j = pl.f0;
+                    } else {
+                        param_j = ((FormalParameterRest)pl.f1.elementAt(j)).f1;
+                    }
+
+                    if (
+                            param_i.f1.f0.toString().equals(param_j.f1.f0.toString())
+                                    && i != j
+                    ) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public NodeChoice findClass(String classname) {
+        for (int i = 0; i < root.f1.size(); i++) {
+            TypeDeclaration td = (TypeDeclaration) root.f1.elementAt(i);
+
+            String currName;
+            if (td.f0.which == 0) {
+                currName = classname((ClassDeclaration)td.f0.choice);
+            } else {
+                currName = classname((ClassExtendsDeclaration)td.f0.choice);
+            }
+
+            if (classname.equals(currName)) {
+                return td.f0;
+            }
+        }
+
+        // This is an error if it happens... Not sure how to
+        // handle this situation yet
+        return null;
+    }
+
+    public NodeListOptional fields(ClassDeclaration c) {
+        return c.f3;
+    }
+
+    // NOTE: The fields in c take precedence over fields in
+    // the superclass of c
+    public NodeListOptional fields(ClassExtendsDeclaration c) {
+        // Find the superclass
+        NodeChoice superclass = findClass(c.f3.f0.toString());
+        NodeListOptional scFields;
+        if (superclass.which == 0) {
+            scFields = (NodeListOptional)fields((ClassDeclaration)superclass.choice);
+        } else {
+            scFields = (NodeListOptional)fields((ClassExtendsDeclaration)superclass.choice);
+        }
+
+        // List which contains a typeEnv of C*CS
+        NodeListOptional typeEnv = new NodeListOptional();
+        // Add class' elements to the list
+        for (int i = 0; i < c.f5.size(); i++) {
+            typeEnv.addNode(c.f5.elementAt(i));
+        }
+
+        // Add superclass' elements to the list
+        for (int i = 0; i < scFields.size(); i++) {
+            typeEnv.addNode(scFields.elementAt(i));
+        }
+
+        return typeEnv;
+    }
+
+    public MethodType methodtype(String id, String id_m) {
+        NodeChoice targetClass = findClass(id);
+        if (targetClass.which == 0) {
+            // Regular class
+            ClassDeclaration cd = (ClassDeclaration)targetClass.choice;
+            for (int i = 0; i < cd.f4.size(); i++) {
+                MethodDeclaration curr = (MethodDeclaration)cd.f4.elementAt(i);
+
+                if (methodname(curr).equals(id_m)) {
+                    return new MethodType(curr.f1, curr.f4);
+                }
+            }
+
+        } else {
+            // Extends class
+            ClassExtendsDeclaration cd = (ClassExtendsDeclaration)targetClass.choice;
+            for (int i = 0; i < cd.f6.size(); i++) {
+                MethodDeclaration curr = (MethodDeclaration)cd.f6.elementAt(i);
+
+                if (methodname(curr).equals(id_m)) {
+                    return new MethodType(curr.f1, curr.f4);
+                }
+            }
+
+            return methodtype(cd.f3.f0.toString(), id_m);
+        }
+
+        return null;
+    }
+
+    public boolean noOverloading(String c, String sc, String id_m) {
+        MethodType a = methodtype(c, id_m);
+        MethodType b = methodtype(sc, id_m);
+        if (methodtype(sc, id_m) != null && a.equals(b))
+            return true;
+
+        return false;
+    }
 
     //
     // Auto class visitors--probably don't need to be overridden.
