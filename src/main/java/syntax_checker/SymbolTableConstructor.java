@@ -10,9 +10,21 @@ public class SymbolTableConstructor implements Visitor {
   public Goal root;
   public SymbolTable symbolTable;
 
+  ClassBinder currClass = null;
+  MethodsBinder currMethod = null;
+
+  public void RegTypeError() {
+    System.out.println("Type error");
+    //System.exit(1);
+  }
+
   //
   // Helper functions as defined in the MiniJava Type System
   //
+  public String idName(Identifier id) {
+    return id.f0.toString();
+  }
+
   public String classname(MainClass mc) {
     return mc.f1.f0.toString();
   }
@@ -222,6 +234,9 @@ public class SymbolTableConstructor implements Visitor {
   * f17 -> "}"
   */
   public void visit(MainClass n) {
+    ClassBinder temp = new ClassBinder();
+    currClass = temp;
+
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -240,6 +255,9 @@ public class SymbolTableConstructor implements Visitor {
     n.f15.accept(this);
     n.f16.accept(this);
     n.f17.accept(this);
+
+    symbolTable.put(Symbol.symbol(classname(n)), temp);
+    currMethod = null;
   }
 
   /**
@@ -259,6 +277,9 @@ public class SymbolTableConstructor implements Visitor {
   * f5 -> "}"
   */
   public void visit(ClassDeclaration n) {
+    ClassBinder temp = new ClassBinder();
+    currClass = temp;
+
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -266,7 +287,8 @@ public class SymbolTableConstructor implements Visitor {
     n.f4.accept(this);
     n.f5.accept(this);
 
-    symbolTable.put(Symbol.symbol(classname(n)), null);
+    symbolTable.put(Symbol.symbol(classname(n)), temp);
+    currMethod = null;
   }
 
   /**
@@ -299,6 +321,32 @@ public class SymbolTableConstructor implements Visitor {
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
+
+    if (currMethod == null) {
+      if (currClass.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
+        RegTypeError();
+
+      if (n.f0.f0.choice instanceof IntegerType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
+      if (n.f0.f0.choice instanceof BooleanType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
+      if (n.f0.f0.choice instanceof ArrayType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
+      if (n.f0.f0.choice instanceof Identifier)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassTypeBinder());
+    } else {
+      if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
+        RegTypeError();
+
+      if (n.f0.f0.choice instanceof IntegerType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
+      if (n.f0.f0.choice instanceof BooleanType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
+      if (n.f0.f0.choice instanceof ArrayType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
+      if (n.f0.f0.choice instanceof Identifier)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassTypeBinder());
+    }
   }
 
   /**
@@ -317,6 +365,18 @@ public class SymbolTableConstructor implements Visitor {
   * f12 -> "}"
   */
   public void visit(MethodDeclaration n) {
+
+    MethodsBinder temp = new MethodsBinder();
+    currMethod = temp;
+    if (n.f1.f0.choice instanceof IntegerType)
+      temp.type = new IntBinder();
+    if (n.f1.f0.choice instanceof BooleanType)
+      temp.type = new BoolBinder();
+    if (n.f1.f0.choice instanceof ArrayType)
+      temp.type = new ArrayBinder();
+    if (n.f1.f0.choice instanceof Identifier)
+      temp.type = new ClassTypeBinder();
+
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -330,6 +390,8 @@ public class SymbolTableConstructor implements Visitor {
     n.f10.accept(this);
     n.f11.accept(this);
     n.f12.accept(this);
+
+    currClass.methods.put(Symbol.symbol(methodname(n)), temp);
   }
 
   /**
@@ -348,6 +410,32 @@ public class SymbolTableConstructor implements Visitor {
   public void visit(FormalParameter n) {
     n.f0.accept(this);
     n.f1.accept(this);
+
+    if (currMethod == null) {
+      if (currClass.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
+        RegTypeError();
+
+      if (n.f0.f0.choice instanceof IntegerType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
+      if (n.f0.f0.choice instanceof BooleanType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
+      if (n.f0.f0.choice instanceof ArrayType)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
+      if (n.f0.f0.choice instanceof Identifier)
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+    } else {
+      if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
+        RegTypeError();
+
+      if (n.f0.f0.choice instanceof IntegerType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
+      if (n.f0.f0.choice instanceof BooleanType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
+      if (n.f0.f0.choice instanceof ArrayType)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
+      if (n.f0.f0.choice instanceof Identifier)
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+    }
   }
 
   /**

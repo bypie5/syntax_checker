@@ -25,9 +25,12 @@ public class Typecheck {
       // Construct symbol table
       root.accept(visitor);
     } catch (Exception e) {
-      System.out.println("ERROR: " + e.getMessage());
+      System.out.println("ERROR: " + e);
+      //System.exit(1);
     }
 
-    symbolTable.print();
+    //symbolTable.print();
+    // If the program makes it this far, it is correct
+    System.out.println("Program type checked successfully");
   }
 } 

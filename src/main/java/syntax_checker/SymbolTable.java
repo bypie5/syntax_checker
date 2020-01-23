@@ -32,6 +32,7 @@ class HashT {
 
     Binder lookup(Symbol s) {
         int index=hash(s)%SIZE;
+        index = (index < 0) ? index*-1 : index;
         for (Bucket b = table[index]; b != null; b = b.next) {
             if (s.eq(b.key)) {
                 return b.binding;
