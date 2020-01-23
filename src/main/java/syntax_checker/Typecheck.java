@@ -16,14 +16,25 @@ public class Typecheck {
 
     try {
       Goal root = MiniJavaParser.Goal();
-      SymbolTableConstructor visitor = new SymbolTableConstructor();
+
+      // First pass
+      SymbolTableConstructor firstVisitor = new SymbolTableConstructor();
 
       // Give the visitor data it needs
-      visitor.root = root;
-      visitor.symbolTable = symbolTable;
+      firstVisitor.root = root;
+      firstVisitor.symbolTable = symbolTable;
 
       // Construct symbol table
-      root.accept(visitor);
+      root.accept(firstVisitor);
+
+      // Second pass
+      CheckVisitor<String> secondVisitor = new CheckVisitor<>();
+
+      secondVisitor.root = root;
+      secondVisitor.symbolTable = symbolTable;
+
+      root.accept(secondVisitor);
+
     } catch (Exception e) {
       System.out.println("ERROR: " + e);
       //System.exit(1);
