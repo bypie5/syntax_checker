@@ -383,9 +383,24 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f7.accept(this);
         n.f8.accept(this);
         n.f9.accept(this);
-        n.f10.accept(this);
+        String itemType = (String) n.f10.accept(this);
         n.f11.accept(this);
         n.f12.accept(this);
+
+        String returnType = "";
+        if (n.f1.f0.choice instanceof IntegerType)
+            returnType = IntTypeStr;
+        if (n.f1.f0.choice instanceof BooleanType)
+            returnType = BoolTypeStr;
+        if (n.f1.f0.choice instanceof ArrayType)
+            returnType = ArrayTypeStr;
+        if (n.f1.f0.choice instanceof Identifier) {
+            returnType = ((ClassTypeBinder)currMethod.type).classname;
+        }
+
+        if (!returnType.equals(itemType))
+            RegTypeError();
+
         return _ret;
     }
 
@@ -742,6 +757,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
+
+        _ret = (R)IntTypeStr;
+
         return _ret;
     }
 
@@ -934,6 +952,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
+
+        _ret = (R)ArrayTypeStr;
+
         return _ret;
     }
 
