@@ -43,7 +43,6 @@ public class Typecheck {
       e.printStackTrace();
     }
 
-    //symbolTable.print();
     // If the program makes it this far, it is correct
     if (!firstVisitor.foundError && !secondVisitor.foundError) {
       System.out.println("Program type checked successfully");

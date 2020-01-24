@@ -524,6 +524,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         if (currMethod != null)
             tempMethodId = currMethod.myItems.get(Symbol.symbol(n.f0.f0.toString()));
         Binder tempClassId = currClass.myItems.get(Symbol.symbol(n.f0.f0.toString()));
+
         // TODO: Check extended classes for the variable too?
         if (tempMethodId == null && tempClassId == null) {
             RegTypeError();
@@ -548,8 +549,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             idType = ((ClassBinder) temp).classname;
         }
 
-        if (expType == null || !expType.equals(idType))
+        if (expType == null || !expType.equals(idType)) {
+
             RegTypeError();
+        }
 
         return _ret;
     }
@@ -792,17 +795,14 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f4.accept(this);
         n.f5.accept(this);
 
-        // Does method exist in the class?
-        ClassBinder cb;
-        MethodsBinder mb;
-        //String classInstanceIdName = "";
-        //if (n.f0.f0.which == 3) {
-        //    classInstanceIdName = ((Identifier) n.f0.f0.choice).f0.toString();
-        //}
+        if (cc == null) {
+            RegTypeError();
+            return null;
+        }
 
-        cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
-        String lookingFor = n.f2.f0.toString();
-        mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
+        // Does method exist in the class?
+        ClassBinder cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
+        MethodsBinder mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
 
         if (mb.type instanceof IntBinder) {
             _ret = (R) IntTypeStr;
@@ -977,6 +977,8 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         ClassBinder newClass = (ClassBinder) symbolTable.get(Symbol.symbol(n.f1.f0.toString()));
         if (newClass == null) {
             RegTypeError();
+
+            return null;
         }
 
         _ret = (R)newClass.classname;

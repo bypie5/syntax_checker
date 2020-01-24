@@ -257,6 +257,9 @@ public class SymbolTableConstructor implements Visitor {
     n.f16.accept(this);
     n.f17.accept(this);
 
+    // Pushing `String[] a` to the main class symbol table
+    //temp.myItems.put(Symbol.symbol(n.f11.f0.toString()), new ArrayBinder());
+
     symbolTable.put(Symbol.symbol(classname(n)), temp);
     currMethod = null;
   }
@@ -303,6 +306,9 @@ public class SymbolTableConstructor implements Visitor {
   * f7 -> "}"
   */
   public void visit(ClassExtendsDeclaration n) {
+    ClassBinder temp = new ClassBinder(classname(n));
+    currClass = temp;
+
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -311,6 +317,9 @@ public class SymbolTableConstructor implements Visitor {
     n.f5.accept(this);
     n.f6.accept(this);
     n.f7.accept(this);
+
+    symbolTable.put(Symbol.symbol(classname(n)), temp);
+    currMethod = null;
   }
 
   /**
@@ -376,8 +385,11 @@ public class SymbolTableConstructor implements Visitor {
     if (n.f1.f0.choice instanceof ArrayType)
       temp.type = new ArrayBinder();
     if (n.f1.f0.choice instanceof Identifier) {
+      /*
+        The return type of this function is the name of the id
+      */
       temp.type = new ClassTypeBinder();
-      ((ClassTypeBinder) temp.type).classname = currClass.classname;
+      ((ClassTypeBinder) temp.type).classname = idName((Identifier) n.f1.f0.choice);
     }
 
     n.f0.accept(this);
