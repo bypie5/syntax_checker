@@ -804,6 +804,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         ClassBinder cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
         MethodsBinder mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
 
+        if (n.f4.present())
+        if (mb.paramCount != ((ExpressionList)n.f4.node).f1.size())
+            RegTypeError();
+
         if (mb.type instanceof IntBinder) {
             _ret = (R) IntTypeStr;
         }

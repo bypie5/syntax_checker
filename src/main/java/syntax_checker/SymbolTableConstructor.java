@@ -378,6 +378,7 @@ public class SymbolTableConstructor implements Visitor {
 
     MethodsBinder temp = new MethodsBinder();
     currMethod = temp;
+
     if (n.f1.f0.choice instanceof IntegerType)
       temp.type = new IntBinder();
     if (n.f1.f0.choice instanceof BooleanType)
@@ -405,6 +406,12 @@ public class SymbolTableConstructor implements Visitor {
     n.f10.accept(this);
     n.f11.accept(this);
     n.f12.accept(this);
+
+    if (n.f4.present()) {
+      temp.paramCount = ((FormalParameterList)(n.f4).node).f1.size();
+    } else {
+      temp.paramCount = 0;
+    }
 
     currClass.methods.put(Symbol.symbol(methodname(n)), temp);
   }
