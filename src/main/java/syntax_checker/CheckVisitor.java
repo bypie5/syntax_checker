@@ -530,6 +530,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             idType = ArrayTypeStr;
         }
 
+        if (temp instanceof ClassBinder) {
+            idType = ((ClassBinder) temp).classname;
+        }
+
         if (expType == null || !expType.equals(idType))
             RegTypeError();
 
@@ -636,9 +640,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(AndExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        R rhs = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R lhs = n.f2.accept(this);
+
+        if (!rhs.equals(lhs)) {
+            RegTypeError();
+        }
+
+        _ret = rhs;
         return _ret;
     }
 
@@ -649,9 +659,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(CompareExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        R rhs = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R lhs = n.f2.accept(this);
+
+        if (!rhs.equals(lhs)) {
+            RegTypeError();
+        }
+
+        _ret = rhs;
         return _ret;
     }
 
@@ -662,9 +678,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(PlusExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        R rhs = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R lhs = n.f2.accept(this);
+
+        if (!rhs.equals(lhs)) {
+            RegTypeError();
+        }
+
+        _ret = rhs;
         return _ret;
     }
 
@@ -675,9 +697,16 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(MinusExpression n) {
         R _ret=null;
-        n.f0.accept(this);
+        R rhs = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R lhs = n.f2.accept(this);
+
+        if (!rhs.equals(lhs)) {
+            RegTypeError();
+        }
+
+        _ret = rhs;
+
         return _ret;
     }
 
@@ -691,7 +720,13 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R rhs = n.f0.accept(this);
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
-        System.out.println(rhs + "*" + lhs);
+
+        if (!rhs.equals(lhs)) {
+            RegTypeError();
+        }
+
+        _ret = rhs;
+
         return _ret;
     }
 
@@ -733,14 +768,40 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(MessageSend n) {
         R _ret=null;
-        String currClass = (String) n.f0.accept(this);
+        String cc = (String) n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
         n.f5.accept(this);
 
-        System.out.println(currClass + ".()");
+        // Does method exist in the class?
+        ClassBinder cb;
+        MethodsBinder mb;
+        //String classInstanceIdName = "";
+        //if (n.f0.f0.which == 3) {
+        //    classInstanceIdName = ((Identifier) n.f0.f0.choice).f0.toString();
+        //}
+
+        cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
+        String lookingFor = n.f2.f0.toString();
+        mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
+
+        if (mb.type instanceof IntBinder) {
+            _ret = (R) IntTypeStr;
+        }
+
+        if (mb.type instanceof BoolBinder) {
+            _ret = (R) BoolTypeStr;
+        }
+
+        if (mb.type instanceof ArrayBinder) {
+            _ret = (R) ArrayTypeStr;
+        }
+
+        if (mb.type instanceof ClassTypeBinder) {
+            _ret = (R)((ClassTypeBinder) mb.type).classname;
+        }
 
         return _ret;
     }
@@ -842,6 +903,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             _ret = (R)ArrayTypeStr;
         }
 
+        if (idBinder instanceof ClassBinder) {
+            _ret = (R)((ClassBinder) idBinder).classname;
+        }
+
         return _ret;
     }
 
@@ -887,7 +952,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
         /*
             Creating a new class instance
-            Does it exist in the symbol table
+            Does it exist in the symbol table?
         */
         ClassBinder newClass = (ClassBinder) symbolTable.get(Symbol.symbol(n.f1.f0.toString()));
         if (newClass == null) {
@@ -906,7 +971,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(NotExpression n) {
         R _ret=null;
         n.f0.accept(this);
-        n.f1.accept(this);
+        _ret = n.f1.accept(this);
         return _ret;
     }
 
@@ -918,7 +983,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(BracketExpression n) {
         R _ret=null;
         n.f0.accept(this);
-        n.f1.accept(this);
+        _ret = n.f1.accept(this);
         n.f2.accept(this);
         return _ret;
     }
