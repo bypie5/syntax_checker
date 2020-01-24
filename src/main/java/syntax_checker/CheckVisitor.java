@@ -387,18 +387,17 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f11.accept(this);
         n.f12.accept(this);
 
-        String returnType = "";
         if (n.f1.f0.choice instanceof IntegerType)
-            returnType = IntTypeStr;
+            _ret = (R)IntTypeStr;
         if (n.f1.f0.choice instanceof BooleanType)
-            returnType = BoolTypeStr;
+            _ret = (R)BoolTypeStr;
         if (n.f1.f0.choice instanceof ArrayType)
-            returnType = ArrayTypeStr;
+            _ret = (R)ArrayTypeStr;
         if (n.f1.f0.choice instanceof Identifier) {
-            returnType = ((ClassTypeBinder)currMethod.type).classname;
+            _ret = (R)((ClassTypeBinder)currMethod.type).classname;
         }
 
-        if (!returnType.equals(itemType))
+        if (!((R)itemType).equals(_ret))
             RegTypeError();
 
         return _ret;
