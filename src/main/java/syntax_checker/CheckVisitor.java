@@ -1,6 +1,5 @@
 package syntax_checker;
 
-import parser.MethodType;
 import syntaxtree.*;
 import visitor.GJNoArguVisitor;
 
@@ -661,7 +660,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
 
-        if (!rhs.equals(lhs)) {
+        if (!rhs.equals(lhs) || !rhs.equals(BoolTypeStr) || !lhs.equals(BoolTypeStr)) {
             RegTypeError();
         }
 
@@ -680,7 +679,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
 
-        if (!rhs.equals(lhs)) {
+        if (!rhs.equals(lhs) || !rhs.equals(IntTypeStr) || !lhs.equals(IntTypeStr)) {
             RegTypeError();
         }
 
@@ -699,7 +698,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
 
-        if (!rhs.equals(lhs)) {
+        if (!rhs.equals(lhs) || !rhs.equals(IntTypeStr) || !lhs.equals(IntTypeStr)) {
             RegTypeError();
         }
 
@@ -718,7 +717,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
 
-        if (!rhs.equals(lhs)) {
+        if (!rhs.equals(lhs) || !rhs.equals(IntTypeStr) || !lhs.equals(IntTypeStr)) {
             RegTypeError();
         }
 
@@ -738,7 +737,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f1.accept(this);
         R lhs = n.f2.accept(this);
 
-        if (!rhs.equals(lhs)) {
+        if (!rhs.equals(lhs) || !rhs.equals(IntTypeStr) || !lhs.equals(IntTypeStr)) {
             RegTypeError();
         }
 
@@ -755,10 +754,13 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(ArrayLookup n) {
         R _ret=null;
-        n.f0.accept(this);
+        R arr_exp = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R index_exp = n.f2.accept(this);
         n.f3.accept(this);
+
+        if (!arr_exp.equals(ArrayTypeStr) || !index_exp.equals(IntTypeStr))
+            RegTypeError();
 
         _ret = (R)IntTypeStr;
 
@@ -775,6 +777,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
+
+        _ret = (R)IntTypeStr;
+
         return _ret;
     }
 
@@ -804,9 +809,12 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         ClassBinder cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
         MethodsBinder mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
 
+        // Does the expression list have the correct length?
         if (n.f4.present())
         if (mb.paramCount != ((ExpressionList)n.f4.node).f1.size())
             RegTypeError();
+
+        // TODO: Are the variables in the expressions the expected types?
 
         if (mb.type instanceof IntBinder) {
             _ret = (R) IntTypeStr;
