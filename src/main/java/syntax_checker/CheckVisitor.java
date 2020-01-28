@@ -829,7 +829,16 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
                 RegTypeError();
             }
 
-            // TODO: Are the variables in the expressions the expected types?
+            // Are the variables in the expressions the expected types?
+            if (!((ExpressionList) n.f4.node).f0.accept(this).equals(mb.paramTypes.get(0)) && mb.paramCount != 0) {
+                RegTypeError();
+            }
+
+            for (int i = 0; i < ((ExpressionList) n.f4.node).f1.size(); i++) {
+                String currExpType = (String)((ExpressionList) n.f4.node).f1.elementAt(i).accept(this);
+                if (!currExpType.equals(mb.paramTypes.get(i+1)))
+                    RegTypeError();
+            }
         }
 
         if (mb.type instanceof IntBinder) {

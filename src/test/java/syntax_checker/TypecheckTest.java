@@ -136,4 +136,9 @@ public class TypecheckTest {
     public void treeVisitorError() throws IOException {
         assertEquals(testFile("TreeVisitor-error.java"), "Type error\n");
     }
+
+    @Test
+    public void wrongParamsError() throws IOException {
+        assertEquals(testFile("WrongParams.java"), "Type error\n");
+    }
 }
