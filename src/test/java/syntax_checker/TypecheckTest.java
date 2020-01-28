@@ -136,4 +136,34 @@ public class TypecheckTest {
     public void treeVisitorError() throws IOException {
         assertEquals(testFile("TreeVisitor-error.java"), "Type error\n");
     }
+
+    @Test
+    public void wrongParamsError() throws IOException {
+        assertEquals(testFile("WrongParams.java"), "Type error\n");
+    }
+
+    @Test
+    public void complexParams() throws IOException {
+        assertEquals(testFile("ComplexParams.java"), "Program type checked successfully\n");
+    }
+
+    @Test
+    public void complexParamsError() throws IOException {
+        assertEquals(testFile("ComplexParams-error.java"), "Type error\n");
+    }
+
+    @Test
+    public void subtypeAssign() throws IOException {
+        assertEquals(testFile("SubTypeAssign.java"), "Program type checked successfully\n");
+    }
+
+    @Test
+    public void subtypeAssignError() throws IOException {
+        assertEquals(testFile("SubTypeAssign-error.java"), "Type error\n");
+    }
+
+    @Test
+    public void circleRefError() throws IOException {
+        assertEquals(testFile("CircleRef.java"), "Type error\n");
+    }
 }

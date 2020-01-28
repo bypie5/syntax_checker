@@ -1,5 +1,8 @@
 package syntax_checker;
 
+import java.util.List;
+import java.util.ArrayList;
+
 class Bucket {
     Symbol key;
     Binder binding;
@@ -50,10 +53,24 @@ class HashT {
     public void print() {
         for (int i = 0; i < table.length; i++) {
             Bucket curr = table[i];
-            if (curr != null) {
+            while (curr != null) {
                 System.out.println(curr.key.toString());
+                curr = curr.next;
             }
         }
+    }
+
+
+    public List<String> getAllItems() {
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < table.length; i++) {
+            Bucket curr = table[i];
+            while (curr != null) {
+                items.add(curr.key.toString());
+                curr = curr.next;
+            }
+        }
+        return items;
     }
 }
 
