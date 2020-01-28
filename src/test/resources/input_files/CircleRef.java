@@ -1,16 +1,20 @@
 class CircleRef{
     public static void main(String[] a){
-        System.out.println(new Circle().Test());
+        System.out.println(new C1().Test());
     }
 }
 
-class Cricle extends C2 {
+class C1 extends C2 {
     public int Test() {
         return 0;
     }
 
 }
 
-class C2 extends Circle {
+class C2 extends C3 {
+
+}
+
+class C3 extends C2 {
 
 }
