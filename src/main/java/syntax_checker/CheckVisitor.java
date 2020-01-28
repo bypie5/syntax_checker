@@ -177,6 +177,24 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         return false;
     }
 
+    public boolean isSubType(String target, String id) {
+        ClassBinder curr = (ClassBinder) symbolTable.get(Symbol.symbol(id));
+        if (curr == null)
+            return false;
+
+        if (curr.parent != null && curr.parent.equals(target)) {
+            return true;
+        }
+
+        while (curr.parent != null) {
+            if (curr.parent.equals(target))
+                return true;
+            curr = (ClassBinder) symbolTable.get(Symbol.symbol(curr.parent));
+        }
+
+        return false;
+    }
+
     //
     // Auto class visitors--probably don't need to be overridden.
     //
@@ -836,8 +854,12 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
             for (int i = 0; i < ((ExpressionList) n.f4.node).f1.size(); i++) {
                 String currExpType = (String)((ExpressionList) n.f4.node).f1.elementAt(i).accept(this);
-                if (!currExpType.equals(mb.paramTypes.get(i+1)))
+                if (!currExpType.equals(mb.paramTypes.get(i+1))
+                        && !isSubType(mb.paramTypes.get(i+1), currExpType)
+                ) {
+                    //if (!isSubType(mb.paramTypes))
                     RegTypeError();
+                }
             }
         }
 

@@ -317,6 +317,7 @@ public class SymbolTableConstructor implements Visitor {
     n.f6.accept(this);
     n.f7.accept(this);
 
+    temp.parent = n.f3.f0.toString();
     symbolTable.put(Symbol.symbol(classname(n)), temp);
     currMethod = null;
   }
