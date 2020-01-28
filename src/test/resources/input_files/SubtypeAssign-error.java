@@ -7,22 +7,41 @@ class SubtypeAssign{
 class A {
     B b;
     C c;
+    F f;
+    boolean t;
+
     public int Test() {
         c = new C();
-        b = c; // TE
+        b = c;
+
+        t = b.Test();
+        t = c.Test();
+        t = f.Test(); // TE
+
+
 
         return 0;
     }
 }
 
+
 class B {
+    public boolean Test() {
+        return false;
+    }
+}
+
+class C extends B {
 
 }
 
-class D extends A {
+class D extends C {
+    public int Test () {
+        return 0;
+    }
+}
+
+class F extends D {
 
 }
 
-class C extends D {
-
-}

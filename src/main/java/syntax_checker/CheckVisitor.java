@@ -857,6 +857,21 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         ClassBinder cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
         MethodsBinder mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
 
+        // Check superclasses for the method
+        if (mb == null) {
+            ClassBinder tempCb = cb;
+            while (tempCb != null) {
+                MethodsBinder tempMb = (MethodsBinder) tempCb.methods.get(Symbol.symbol(n.f2.f0.toString()));
+
+                if (tempMb != null) {
+                    mb = tempMb;
+                    break;
+                }
+
+                tempCb = (ClassBinder) symbolTable.get(Symbol.symbol(tempCb.parent));
+            }
+        }
+
         if (mb == null) {
             RegTypeError();
             return null;
