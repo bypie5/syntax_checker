@@ -19,5 +19,5 @@ class ArrayBinder extends TypeBinder {
 }
 
 class ClassTypeBinder extends TypeBinder {
-
+    String classname;
 }

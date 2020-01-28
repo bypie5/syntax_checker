@@ -1,6 +1,5 @@
 package syntax_checker;
 
-import parser.MethodType;
 import visitor.Visitor;
 import syntaxtree.*;
 import java.util.*;
@@ -13,9 +12,10 @@ public class SymbolTableConstructor implements Visitor {
   ClassBinder currClass = null;
   MethodsBinder currMethod = null;
 
+  public boolean foundError = false;
+
   public void RegTypeError() {
-    System.out.println("Type error");
-    //System.exit(1);
+    foundError = true;
   }
 
   //
@@ -234,7 +234,7 @@ public class SymbolTableConstructor implements Visitor {
   * f17 -> "}"
   */
   public void visit(MainClass n) {
-    ClassBinder temp = new ClassBinder();
+    ClassBinder temp = new ClassBinder(classname(n));
     currClass = temp;
 
     n.f0.accept(this);
@@ -255,6 +255,9 @@ public class SymbolTableConstructor implements Visitor {
     n.f15.accept(this);
     n.f16.accept(this);
     n.f17.accept(this);
+
+    // Pushing `String[] a` to the main class symbol table
+    //temp.myItems.put(Symbol.symbol(n.f11.f0.toString()), new ArrayBinder());
 
     symbolTable.put(Symbol.symbol(classname(n)), temp);
     currMethod = null;
@@ -277,7 +280,7 @@ public class SymbolTableConstructor implements Visitor {
   * f5 -> "}"
   */
   public void visit(ClassDeclaration n) {
-    ClassBinder temp = new ClassBinder();
+    ClassBinder temp = new ClassBinder(classname(n));
     currClass = temp;
 
     n.f0.accept(this);
@@ -302,6 +305,9 @@ public class SymbolTableConstructor implements Visitor {
   * f7 -> "}"
   */
   public void visit(ClassExtendsDeclaration n) {
+    ClassBinder temp = new ClassBinder(classname(n));
+    currClass = temp;
+
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -310,6 +316,10 @@ public class SymbolTableConstructor implements Visitor {
     n.f5.accept(this);
     n.f6.accept(this);
     n.f7.accept(this);
+
+    temp.parent = n.f3.f0.toString();
+    symbolTable.put(Symbol.symbol(classname(n)), temp);
+    currMethod = null;
   }
 
   /**
@@ -333,7 +343,7 @@ public class SymbolTableConstructor implements Visitor {
       if (n.f0.f0.choice instanceof ArrayType)
         currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
       if (n.f0.f0.choice instanceof Identifier)
-        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassTypeBinder());
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(((Identifier) n.f0.f0.choice).f0.toString()));
     } else {
       if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
@@ -345,7 +355,7 @@ public class SymbolTableConstructor implements Visitor {
       if (n.f0.f0.choice instanceof ArrayType)
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
       if (n.f0.f0.choice instanceof Identifier)
-        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassTypeBinder());
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(((Identifier) n.f0.f0.choice).f0.toString()));
     }
   }
 
@@ -368,14 +378,20 @@ public class SymbolTableConstructor implements Visitor {
 
     MethodsBinder temp = new MethodsBinder();
     currMethod = temp;
+
     if (n.f1.f0.choice instanceof IntegerType)
       temp.type = new IntBinder();
     if (n.f1.f0.choice instanceof BooleanType)
       temp.type = new BoolBinder();
     if (n.f1.f0.choice instanceof ArrayType)
       temp.type = new ArrayBinder();
-    if (n.f1.f0.choice instanceof Identifier)
+    if (n.f1.f0.choice instanceof Identifier) {
+      /*
+        The return type of this function is the name of the id
+      */
       temp.type = new ClassTypeBinder();
+      ((ClassTypeBinder) temp.type).classname = idName((Identifier) n.f1.f0.choice);
+    }
 
     n.f0.accept(this);
     n.f1.accept(this);
@@ -390,6 +406,12 @@ public class SymbolTableConstructor implements Visitor {
     n.f10.accept(this);
     n.f11.accept(this);
     n.f12.accept(this);
+
+    if (n.f4.present()) {
+      temp.paramCount = ((FormalParameterList)(n.f4).node).f1.size();
+    } else {
+      temp.paramCount = 0;
+    }
 
     currClass.methods.put(Symbol.symbol(methodname(n)), temp);
   }
@@ -422,19 +444,27 @@ public class SymbolTableConstructor implements Visitor {
       if (n.f0.f0.choice instanceof ArrayType)
         currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
       if (n.f0.f0.choice instanceof Identifier)
-        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+        currClass.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(((Identifier) n.f0.f0.choice).f0.toString()));
     } else {
       if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
 
-      if (n.f0.f0.choice instanceof IntegerType)
+      if (n.f0.f0.choice instanceof IntegerType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
-      if (n.f0.f0.choice instanceof BooleanType)
+        currMethod.paramTypes.add(CheckVisitor.IntTypeStr);
+      }
+      if (n.f0.f0.choice instanceof BooleanType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
-      if (n.f0.f0.choice instanceof ArrayType)
+        currMethod.paramTypes.add(CheckVisitor.BoolTypeStr);
+      }
+      if (n.f0.f0.choice instanceof ArrayType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
-      if (n.f0.f0.choice instanceof Identifier)
-        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder());
+        currMethod.paramTypes.add(CheckVisitor.ArrayTypeStr);
+      }
+      if (n.f0.f0.choice instanceof Identifier) {
+        currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(((Identifier) n.f0.f0.choice).f0.toString()));
+        currMethod.paramTypes.add(((Identifier) n.f0.f0.choice).f0.toString());
+      }
     }
   }
 

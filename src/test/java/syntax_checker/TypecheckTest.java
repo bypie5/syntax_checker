@@ -4,6 +4,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import java.io.*;
+import java.util.Scanner;
+
 import static org.junit.Assert.*;
 
 
@@ -20,10 +22,14 @@ public class TypecheckTest {
     void passFileToMain(String name) throws IOException {
         String[] args = null;
         final InputStream original = System.in;
-        final FileInputStream fips = new FileInputStream(new File("src/test/resources/input_files/"+name));
-        System.setIn(fips);
-        Typecheck.main(args);
-        System.setIn(original);
+        try {
+            final FileInputStream fips = new FileInputStream(new File("src/test/resources/input_files/" + name));
+            System.setIn(fips);
+            Typecheck.typeCheck();
+            fips.close();
+        } finally {
+            System.setIn(original);
+        }
     }
 
     String testFile(String name) throws IOException {
@@ -129,5 +135,35 @@ public class TypecheckTest {
     @Test
     public void treeVisitorError() throws IOException {
         assertEquals(testFile("TreeVisitor-error.java"), "Type error\n");
+    }
+
+    @Test
+    public void wrongParamsError() throws IOException {
+        assertEquals(testFile("WrongParams.java"), "Type error\n");
+    }
+
+    @Test
+    public void complexParams() throws IOException {
+        assertEquals(testFile("ComplexParams.java"), "Program type checked successfully\n");
+    }
+
+    @Test
+    public void complexParamsError() throws IOException {
+        assertEquals(testFile("ComplexParams-error.java"), "Type error\n");
+    }
+
+    @Test
+    public void subtypeAssign() throws IOException {
+        assertEquals(testFile("SubTypeAssign.java"), "Program type checked successfully\n");
+    }
+
+    @Test
+    public void subtypeAssignError() throws IOException {
+        assertEquals(testFile("SubTypeAssign-error.java"), "Type error\n");
+    }
+
+    @Test
+    public void circleRefError() throws IOException {
+        assertEquals(testFile("CircleRef.java"), "Type error\n");
     }
 }
