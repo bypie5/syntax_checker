@@ -1,6 +1,5 @@
 package syntax_checker;
 
-import parser.MethodType;
 import syntaxtree.*;
 import visitor.GJNoArguVisitor;
 

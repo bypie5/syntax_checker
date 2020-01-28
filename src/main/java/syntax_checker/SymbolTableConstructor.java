@@ -1,6 +1,5 @@
 package syntax_checker;
 
-import parser.MethodType;
 import visitor.Visitor;
 import syntaxtree.*;
 import java.util.*;

@@ -1,4 +1,4 @@
-package parser;
+package syntax_checker;
 
 import syntaxtree.*;
 
