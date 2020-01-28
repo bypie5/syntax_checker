@@ -15,6 +15,14 @@ class C2 extends C3 {
 
 }
 
-class C3 extends C2 {
+class C3 extends C4 {
+
+}
+
+class C4 extends C5 {
+
+}
+
+class C5 extends C2 {
 
 }
