@@ -1,0 +1,56 @@
+import os
+import shutil
+import subprocess
+
+print ("Putting hw1.tgz into \'./out\'...\n")
+
+def get_javas(loc):
+	pkg = []
+	names = []
+	for f in os.listdir(loc):
+		if '.java' in f:
+			pkg.append(os.path.join(loc, f))
+			names.append(f)
+	return pkg, names
+
+# Gather source files and copy them to dest
+dest = './out/hw1'
+pkgs = ['./src/main/java/parser', './src/main/java/syntax_checker']
+
+# Clean up old code
+if os.path.isdir(dest):
+	# Remove old .tgz if it exists
+	tgz_path = os.path.join(dest, 'hw1.tgz')
+	if os.path.isfile(tgz_path):
+		os.remove(tgz_path)
+
+	for filename in os.listdir(dest):
+		file_path = os.path.join(dest, filename)
+		try:
+			if os.path.isfile(file_path) or os.path.islink(file_path):
+				os.unlink(file_path)
+			elif os.path.isdir(file_path):
+				shutil.rmtree(file_path)
+		except Exception as e:
+			print('Failed to delete %s. Reason: %s' % (file_path, e))
+	os.rmdir(dest)
+os.mkdir(dest) # Make the folder for dest
+
+for p in pkgs:
+	files, names = get_javas(p)
+	for i, f in enumerate(files):
+		n = names[i]
+		shutil.copyfile(f, os.path.join(dest, n))
+
+# Clean up source files
+
+
+# Package source files
+bashCommand = "tar -cvzf hw1.tgz ./hw1"
+process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, cwd='./out')
+output, error = process.communicate()
+
+print(output)
+print("Error: " + str(error))
+print("Done.")
+
