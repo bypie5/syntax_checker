@@ -161,4 +161,9 @@ public class TypecheckTest {
     public void subtypeAssignError() throws IOException {
         assertEquals(testFile("SubTypeAssign-error.java"), "Type error\n");
     }
+
+    @Test
+    public void circleRefError() throws IOException {
+        assertEquals(testFile("CircleRef.java"), "Type error\n");
+    }
 }

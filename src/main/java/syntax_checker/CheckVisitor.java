@@ -673,7 +673,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         n.f3.accept(this);
         n.f4.accept(this);
 
-        if (!exp.equals(IntTypeStr))
+        if (exp == null || !exp.equals(IntTypeStr))
             RegTypeError();
 
         return _ret;
@@ -869,6 +869,11 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
                 }
 
                 tempCb = (ClassBinder) symbolTable.get(Symbol.symbol(tempCb.parent));
+            }
+
+            if (tempCb == null) {
+                RegTypeError();
+                return null;
             }
         }
 
