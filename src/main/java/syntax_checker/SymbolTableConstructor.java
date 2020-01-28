@@ -448,14 +448,22 @@ public class SymbolTableConstructor implements Visitor {
       if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
 
-      if (n.f0.f0.choice instanceof IntegerType)
+      if (n.f0.f0.choice instanceof IntegerType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
-      if (n.f0.f0.choice instanceof BooleanType)
+        currMethod.paramTypes.add(CheckVisitor.IntTypeStr);
+      }
+      if (n.f0.f0.choice instanceof BooleanType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new BoolBinder());
-      if (n.f0.f0.choice instanceof ArrayType)
+        currMethod.paramTypes.add(CheckVisitor.BoolTypeStr);
+      }
+      if (n.f0.f0.choice instanceof ArrayType) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ArrayBinder());
-      if (n.f0.f0.choice instanceof Identifier)
+        currMethod.paramTypes.add(CheckVisitor.ArrayTypeStr);
+      }
+      if (n.f0.f0.choice instanceof Identifier) {
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new ClassBinder(((Identifier) n.f0.f0.choice).f0.toString()));
+        currMethod.paramTypes.add(((Identifier) n.f0.f0.choice).f0.toString());
+      }
     }
   }
 

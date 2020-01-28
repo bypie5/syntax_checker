@@ -7,9 +7,9 @@ import java.util.Enumeration;
 
 public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
-    String IntTypeStr = "INT_TYPE";
-    String BoolTypeStr = "BOOL_TYPE";
-    String ArrayTypeStr = "ARRAY_TYPE";
+    public static String IntTypeStr = "INT_TYPE";
+    public static String BoolTypeStr = "BOOL_TYPE";
+    public static String ArrayTypeStr = "ARRAY_TYPE";
 
     public Goal root;
     public SymbolTable symbolTable;
@@ -399,6 +399,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         if (!((R)itemType).equals(_ret))
             RegTypeError();
 
+        if (!distinct(n.f4))
+            RegTypeError();
+
         return _ret;
     }
 
@@ -420,7 +423,8 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(FormalParameter n) {
         R _ret=null;
         n.f0.accept(this);
-        n.f1.accept(this);
+        _ret = n.f1.accept(this);
+
         return _ret;
     }
 
@@ -626,9 +630,13 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R _ret=null;
         n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R exp = n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
+
+        if (!exp.equals(IntTypeStr))
+            RegTypeError();
+
         return _ret;
     }
 
@@ -683,7 +691,8 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             RegTypeError();
         }
 
-        _ret = rhs;
+        _ret = (R) BoolTypeStr;
+
         return _ret;
     }
 
@@ -809,12 +818,19 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         ClassBinder cb = (ClassBinder) symbolTable.get(Symbol.symbol(cc));
         MethodsBinder mb = (MethodsBinder) cb.methods.get(Symbol.symbol(n.f2.f0.toString()));
 
-        // Does the expression list have the correct length?
-        if (n.f4.present())
-        if (mb.paramCount != ((ExpressionList)n.f4.node).f1.size())
+        if (mb == null) {
             RegTypeError();
+            return null;
+        }
 
-        // TODO: Are the variables in the expressions the expected types?
+        if (n.f4.present()) {
+            // Does the expression list have the correct length?
+            if (mb.paramCount != ((ExpressionList) n.f4.node).f1.size()) {
+                RegTypeError();
+            }
+
+            // TODO: Are the variables in the expressions the expected types?
+        }
 
         if (mb.type instanceof IntBinder) {
             _ret = (R) IntTypeStr;
@@ -841,8 +857,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(ExpressionList n) {
         R _ret=null;
+
         n.f0.accept(this);
         n.f1.accept(this);
+
         return _ret;
     }
 
@@ -853,7 +871,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(ExpressionRest n) {
         R _ret=null;
         n.f0.accept(this);
-        n.f1.accept(this);
+        R exp = n.f1.accept(this);
+
+        _ret = exp;
+
         return _ret;
     }
 
@@ -880,7 +901,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(IntegerLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return (R)IntTypeStr;
+
+        _ret = (R)IntTypeStr;
+
+        return _ret;
     }
 
     /**
@@ -889,7 +913,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(TrueLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return (R)BoolTypeStr;
+
+        _ret = (R)BoolTypeStr;
+
+        return _ret;
     }
 
     /**
@@ -898,7 +925,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(FalseLiteral n) {
         R _ret=null;
         n.f0.accept(this);
-        return (R)BoolTypeStr;
+
+        _ret = (R)BoolTypeStr;
+
+        return _ret;
     }
 
     /**
@@ -910,13 +940,14 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
 
         Binder idBinder = null;
 
-        if (currClass != null) {
-            Binder temp = currClass.myItems.get(Symbol.symbol(n.f0.toString()));
+        // The current method takes precedence over the current class
+        if (currMethod != null) {
+            Binder temp = currMethod.myItems.get(Symbol.symbol(n.f0.toString()));
             if (temp != null) idBinder = temp;
         }
 
-        if (currMethod != null) {
-            Binder temp = currMethod.myItems.get(Symbol.symbol(n.f0.toString()));
+        if (currClass != null && idBinder == null) {
+            Binder temp = currClass.myItems.get(Symbol.symbol(n.f0.toString()));
             if (temp != null) idBinder = temp;
         }
 
@@ -932,6 +963,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             _ret = (R)ArrayTypeStr;
         }
 
+        if (idBinder instanceof ClassTypeBinder) {
+            _ret = (R)((ClassTypeBinder) idBinder).classname;
+        }
+
         if (idBinder instanceof ClassBinder) {
             _ret = (R)((ClassBinder) idBinder).classname;
         }
@@ -945,7 +980,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
     public R visit(ThisExpression n) {
         R _ret=null;
         n.f0.accept(this);
-        _ret = (R)currClass.classname;
+
+        String currClassname = currClass.classname;
+
+        // Does the class actually exist in the symbol table?
+        if (symbolTable.get(Symbol.symbol(currClassname)) == null)
+            RegTypeError();
+
+        _ret = (R)currClassname;
+
         return _ret;
     }
 
@@ -1006,6 +1049,10 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R _ret=null;
         n.f0.accept(this);
         _ret = n.f1.accept(this);
+
+        if (!_ret.equals(BoolTypeStr))
+            RegTypeError();
+
         return _ret;
     }
 
