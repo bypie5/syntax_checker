@@ -151,4 +151,14 @@ public class TypecheckTest {
     public void complexParamsError() throws IOException {
         assertEquals(testFile("ComplexParams-error.java"), "Type error\n");
     }
+
+    @Test
+    public void subtypeAssign() throws IOException {
+        assertEquals(testFile("SubTypeAssign.java"), "Program type checked successfully\n");
+    }
+
+    @Test
+    public void subtypeAssignError() throws IOException {
+        assertEquals(testFile("SubTypeAssign-error.java"), "Type error\n");
+    }
 }

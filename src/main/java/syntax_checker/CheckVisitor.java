@@ -177,6 +177,7 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         return false;
     }
 
+    // is target a subclass of id?
     public boolean isSubType(String target, String id) {
         ClassBinder curr = (ClassBinder) symbolTable.get(Symbol.symbol(id));
         if (curr == null)
@@ -570,7 +571,9 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
             idType = ((ClassBinder) temp).classname;
         }
 
-        if (expType == null || !expType.equals(idType)) {
+        // Is it a correct type, or is a subtype?
+        if (expType == null ||
+                (!expType.equals(idType) && !isSubType(idType, expType))) {
 
             RegTypeError();
         }
@@ -589,13 +592,23 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
      */
     public R visit(ArrayAssignmentStatement n) {
         R _ret=null;
-        n.f0.accept(this);
+        R id = n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R exp1 = n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
-        n.f5.accept(this);
+        R exp2 = n.f5.accept(this);
         n.f6.accept(this);
+
+        if (!id.equals(ArrayTypeStr))
+            RegTypeError();
+
+        if (!exp1.equals(IntTypeStr))
+            RegTypeError();
+
+        if (!exp2.equals(IntTypeStr))
+            RegTypeError();
+
         return _ret;
     }
 
@@ -612,11 +625,15 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R _ret=null;
         n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R exp = n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
         n.f5.accept(this);
         n.f6.accept(this);
+
+        if (!exp.equals(BoolTypeStr))
+            RegTypeError();
+
         return _ret;
     }
 
@@ -631,9 +648,13 @@ public class CheckVisitor<R> implements GJNoArguVisitor<R> {
         R _ret=null;
         n.f0.accept(this);
         n.f1.accept(this);
-        n.f2.accept(this);
+        R exp = n.f2.accept(this);
         n.f3.accept(this);
         n.f4.accept(this);
+
+        if (!exp.equals(BoolTypeStr))
+            RegTypeError();
+
         return _ret;
     }
 
