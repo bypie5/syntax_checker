@@ -15,7 +15,7 @@ def get_javas(loc):
 
 # Gather source files and copy them to dest
 dest = './out/hw1'
-pkgs = ['./src/main/java/parser', './src/main/java/syntax_checker']
+pkgs = ['./src/main/java/syntax_checker']
 
 # Clean up old code
 if os.path.isdir(dest):
