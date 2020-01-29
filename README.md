@@ -3,9 +3,7 @@ by Brandon Yi
 
 ## Requirements and Specifications
 
-​	Phase 1 of this project is required to type check a MiniJava program. Given a MiniJava program, the type-checker must print out `Program type checked successfully` if there is no type error. However, if there is a type error, the program must print out `Type error`. The program takes the MiniJava program in from standard input.
-
-​	Phase 1 uses JTB and JavaCC to create a syntax tree and visitor classes. The generated visitor classes allow easy traversal of the aforementioned syntax tree. My program uses modified versions of the generated `DepthFirstVisitor` and `GJDepthFirst` visitors.
+​	Phase 1 of this project is required to type check a MiniJava program. Given a MiniJava program, the type-checker must print out `Program type checked successfully` if there is no type error. However, if there is a type error, the program must print out `Type error`. The program takes the MiniJava program in from standard input. Phase 1 uses JTB and JavaCC to create a syntax tree and visitor classes. The generated visitor classes allow easy traversal of the aforementioned syntax tree. My program uses modified versions of the generated `DepthFirstVisitor` and `GJDepthFirst` visitors.
 
 ## Design
 
@@ -15,9 +13,7 @@ by Brandon Yi
 
 ### Symbol Table Design
 
-![](stdesign.png)
-
-​	The symbol table is multi-layered. Each level of the symbol table uses a hash table to store `Binder`s which are the data structures that contain information about the identifier stored in the hash table.  Each `Binder` class contains information unique to the identifier's type and a `Symbol` which stores the name of the identifier. The `Symbol` class is used to determine where in the hash table the `Binder` is stored.
+![](stdesign.png)	The symbol table is multi-layered. Each level of the symbol table uses a hash table to store `Binder`s which are the data structures that contain information about the identifier stored in the hash table.  Each `Binder` class contains information unique to the identifier's type and a `Symbol` which stores the name of the identifier. The `Symbol` class is used to determine where in the hash table the `Binder` is stored.
 
 ​		The first level stores an extended class of `Binder` called `ClassBinder`; The `ClassBinder` contains the name of parent of the identifiers's class (i.e. the classname after `extends`), the identifier's classname and two hash tables. The first hash table is used to store the fields of the class. Each of the identifiers stored in the first hash table have a `Binder`  for their respective type (e.g. `IntBinder`, `BoolBinder`, `ArrayBinder` or `ClassBinder`). The second hash table is used to store `MethodBinder`s.
 
@@ -29,14 +25,10 @@ by Brandon Yi
 
 ```java
 public void visit(VarDeclaration n) {
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-
+    n.f0.accept(this); n.f1.accept(this); n.f2.accept(this);
     if (currMethod == null) {
       if (currClass.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
-
       if (n.f0.f0.choice instanceof IntegerType)
         currClass.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
       if (n.f0.f0.choice instanceof BooleanType)
@@ -48,7 +40,6 @@ public void visit(VarDeclaration n) {
     } else {
       if (currMethod.myItems.alreadyExists(Symbol.symbol(idName(n.f1))))
         RegTypeError();
-
       if (n.f0.f0.choice instanceof IntegerType)
         currMethod.myItems.put(Symbol.symbol(idName(n.f1)), new IntBinder());
       if (n.f0.f0.choice instanceof BooleanType)
@@ -79,15 +70,11 @@ The `SymbolTableConstructor` class adds each identifier - no matter what scope i
 public R visit(ThisExpression n) {
         R _ret=null;
         n.f0.accept(this);
-
         String currClassname = currClass.classname;
-
         // Does the class actually exist in the symbol table?
         if (symbolTable.get(Symbol.symbol(currClassname)) == null)
             RegTypeError();
-
         _ret = (R)currClassname;
-
         return _ret;
 }
 ```
@@ -96,3 +83,15 @@ The `CheckVisitor` class implements the type judgements as described by the Mini
 
 ## Testing and Verification
 
+Along with the basic tests provided by this course, I added a few more special cases (All MiniJava test files can be found in `./src/test/resources/input_files`). These cases include:
+
+| Test file                 | Description                                                  |
+| ------------------------- | ------------------------------------------------------------ |
+| CircleRef.java            | This test verifies that code with cyclic class dependencies gets marked as having a type error. |
+| ComplexPararms-error.java | This test checks if the parameters of a method can be of different types and that each parameter can be passed in subclass of its parent (if the method takes in the parent of the parameter). **However, one of the parameters is invalid.** |
+| ComplexPararms.java       | This test checks if the parameters of a method can be of different types and that each parameter can be passed in subclass of its parent (if the method takes in the parent of the parameter). |
+| SubtypeAssign-error.java  | This test verifies that an assignment between a class A and a class B that is **not** an instance A nor is it a subtype of A results in a type error. |
+| SubtypeAssign.java        | This test verifies that an assignment between a class A and a class B that is a subtype of A results in a valid type-checked program. |
+| WrongParams.java          | This test checks if the parameters supplied to a method are actually of the type the method expects. This test results in a type error because one of the parameters is wrong. |
+
+This project uses `gradle` to preform automatic testing. Run `./gradlew test` to verify the execution of the test cases described above. 
