@@ -43,14 +43,25 @@ for p in pkgs:
 		shutil.copyfile(f, os.path.join(dest, n))
 
 # Clean up source files
-
+# Remove this specific text from all files:		
+text_to_remove = ['package syntax_checker;', 'package parser;', 'import parser.*;', '//<final>//']
+for file in os.listdir(dest):
+	filename = os.path.join(dest, file)
+	with open(filename, "r") as f:
+		lines = f.readlines()
+	with open(filename, "w") as f:
+		for line in lines:
+			to_modify = line
+			for t in text_to_remove:
+				if t in line:
+					to_modify = to_modify.replace(t, '')
+			f.write(to_modify)
 
 # Package source files
 bashCommand = "tar -cvzf hw1.tgz ./hw1"
 process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, cwd='./out')
 output, error = process.communicate()
 
-print(output)
 print("Error: " + str(error))
 print("Done.")
 
