@@ -61,11 +61,11 @@ public class Typecheck {
     // If the program makes it this far, it is correct
     if (!firstVisitor.foundError && !secondVisitor.foundError) {
       System.out.println("Program type checked successfully");
-      //System.exit(0);
+      //<final>//System.exit(0);
     }
     else {
       System.out.println("Type error");
-      //System.exit(1);
+      //<final>//System.exit(1);
     }
   }
 
@@ -83,7 +83,6 @@ class Graph {
 
   // Adds edge: n1 -> n2
   public void addEdge(String n1_key, String n2_key) {
-    //System.out.println(n1_key + " -> " + n2_key);
     if (n1_key != null) {
       addNode(n1_key).next = addNode(n2_key);
     } else {
